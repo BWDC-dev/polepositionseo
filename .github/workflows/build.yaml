@@ -48,7 +48,9 @@ jobs:
         run: |
           set -e
           FILE=sites/polepositionseo/app.yaml
-          sed -i -E "s#(image: ghcr.io/${{ github.repository_owner }}/polepositionseo):.*#\1:${{ needs.build.outputs.tag }}#" "$FILE"
+          OWNER="${GITHUB_REPOSITORY_OWNER,,}"   # GHCR image names are lowercase even when the GitHub login is not
+          sed -i -E "s#(image: ghcr.io/${OWNER}/polepositionseo):.*#\1:${{ needs.build.outputs.tag }}#" "$FILE"
+          grep -q "polepositionseo:${{ needs.build.outputs.tag }}" "$FILE" || { echo "image line not updated"; exit 1; }
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add "$FILE"
